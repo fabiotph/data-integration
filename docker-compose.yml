@@ -30,7 +30,7 @@ services:
     links:
       - db
     environment:
-      - DSN=host=dbname=data-integration sslmode=disable user=postgres password=root
+      - DSN=host=Host.docker.internal dbname=data-integration sslmode=disable user=postgres password=root
     depends_on:
       db:
         condition: service_healthy
