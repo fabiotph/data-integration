@@ -6,6 +6,7 @@ import(
 	"server/src/models"
 	"server/src/routes"
 	"net/http"
+	"log"
 )
 
 
@@ -22,6 +23,7 @@ func initialSetting(){
 func main() {
 	initialSetting()
 	router := routes.HandleRoutes()
-
+	log.Println("Server listen on :3000")
 	http.ListenAndServe(":3000", router)
+
 }

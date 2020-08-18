@@ -12,6 +12,6 @@ func HandleRoutes() *mux.Router {
 
 	router.HandleFunc("/company/all", controller.GetAll).Methods(http.MethodGet)
 	router.HandleFunc("/company", controller.GetByNameAndZipCode).Methods(http.MethodGet)
-
+	router.HandleFunc("/update", controller.UpdateByCSV).Methods(http.MethodPost)
 	return router
 }

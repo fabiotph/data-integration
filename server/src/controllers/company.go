@@ -71,3 +71,38 @@ func (controller *CompanyController) GetByNameAndZipCode(w http.ResponseWriter, 
 	utils.JSONResponse(w, result, http.StatusOK)
 	return
 }
+
+func (controller *CompanyController) UpdateByCSV(w http.ResponseWriter, r *http.Request){
+	file, handler, err := r.FormFile("file")
+	if handler.Size == 0{
+		utils.JSONResponse(w, utils.Response{Error:true, Message: "File is empty."}, http.StatusBadRequest)
+		return
+	}
+	filename := strings.Split(handler.Filename, ".")
+	extension := filename[len(filename)-1]
+	if extension != "csv"{
+		utils.JSONResponse(w, utils.Response{Error:true, Message: "File is not csv file."}, http.StatusBadRequest)
+		return
+	}
+	if err != nil{
+		utils.JSONResponse(w, utils.Response{Error:true, Message: "Error update companies for csv file."}, http.StatusBadRequest)
+		return
+	}
+	reader := csv.NewReader(file)
+	reader.Comma = ';'
+	lines, err := reader.ReadAll()
+
+	if err != nil{
+		log.Fatalf("Couldn't read csv file: %v", err)
+		utils.JSONResponse(w, utils.Response{Error:true, Message: "Couldn't read csv file."}, http.StatusBadRequest)
+		return
+	}
+	for i, line := range lines{
+		if i != 0{
+			updateCompany := models.Company{Name: line[0], ZipCode: line[1], Website: line[2]}
+			updateCompany.Name = strings.ToUpper(updateCompany.Name)
+			controller.companyModel.UpdateWebsite(&updateCompany)
+		}
+	}
+	utils.JSONResponse(w, utils.Response{Success: true, Message: "Updated companies."},http.StatusOK)
+}

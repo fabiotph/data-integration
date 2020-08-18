@@ -102,3 +102,14 @@ func (model *CompanyModel) GetByNameAndZipCode(company *Company) (Company, error
 	defer db.Close()
 	return response, err
 }
+
+func (model *CompanyModel) UpdateWebsite(company *Company) Company{
+	db := utils.Connect()
+	response := Company{}
+	err := db.Conn.Model(Company{}).Where("name = ? AND zip_code = ?", company.Name, company.ZipCode).Update("website", company.Website).Error
+	if err != nil{
+		log.Fatalf("Error update Company")
+	}
+	defer db.Close()
+	return response
+}
