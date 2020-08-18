@@ -5,6 +5,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"regexp"
+	"server/src/utils"
 )
 
 type Company struct{
@@ -24,6 +25,8 @@ type CompanyModel struct {}
 func NewCompanyModel() *CompanyModel {
 	return &CompanyModel{}
 }
+
+type Companies []Company
 
 func (company *Company) BeforeCreate(scope *gorm.Scope) error{
 	err := scope.SetColumn("Id", uuid.NewV4().String())
@@ -61,4 +64,15 @@ func validateWebSite(website string) bool{
 	regex := regexp.MustCompile(`^((https?)://[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?((/(([a-z]+[A-Z]*[0-9]*)|([a-z]*[A-Z]+[0-9]*)|([a-z]*[A-Z]*[0-9]+))/?)*|(/?)))?$`)
 	isMatch := regex.MatchString(website)
 	return isMatch
+}
+
+func (model *CompanyModel) GetAll() (Companies, error){
+	db := utils.Connect()
+	response := Companies{}
+	err := db.Conn.Find(&response).Error
+	if err != nil{
+		log.Fatalf("Error get all companies")
+	}
+	defer db.Close()
+	return response, err
 }
