@@ -7,6 +7,7 @@ import(
 	"os"
 	"log"
 	"encoding/csv"
+	"strings"
 )
 
 type CompanyController struct{
@@ -48,4 +49,25 @@ func (controller *CompanyController) LoadCSV(filename string) bool{
 			}
 		}
 		return true
+}
+
+func (controller *CompanyController) GetByNameAndZipCode(w http.ResponseWriter, r *http.Request){
+	name := r.URL.Query().Get("name")
+	zip :=  r.URL.Query().Get("zip")
+	if name == "" || zip == ""{
+		utils.JSONResponse(w, utils.Response{Error: true, Message: "Query Parameters 'name' and 'zip' are required."}, http.StatusBadRequest)
+		return
+	}
+
+	search := models.Company{}
+	search.Name = strings.ToUpper(name)
+	search.ZipCode = zip
+
+	result, err := controller.companyModel.GetByNameAndZipCode(&search)
+	if err != nil {
+		utils.JSONResponse(w, utils.Response{}, http.StatusOK)
+		return
+	}
+	utils.JSONResponse(w, result, http.StatusOK)
+	return
 }

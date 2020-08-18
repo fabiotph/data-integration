@@ -91,3 +91,14 @@ func (model *CompanyModel) Insert (company *Company) (*Company, error) {
 	}
 	return company, err
 }
+
+func (model *CompanyModel) GetByNameAndZipCode(company *Company) (Company, error){
+	db := utils.Connect()
+	response := Company{}
+	err := db.Conn.Where("name LIKE ? AND zip_code = ?", "%"+company.Name+"%", company.ZipCode).Take(&response).Error
+	if err != nil{
+		log.Println("Company not found.")
+	}
+	defer db.Close()
+	return response, err
+}
