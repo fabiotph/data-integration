@@ -6,6 +6,8 @@ import (
 	"log"
 	"regexp"
 	"server/src/utils"
+	"strings"
+	"errors"
 )
 
 type Company struct{
@@ -75,4 +77,17 @@ func (model *CompanyModel) GetAll() (Companies, error){
 	}
 	defer db.Close()
 	return response, err
+}
+
+func (model *CompanyModel) Insert (company *Company) (*Company, error) {
+	company.Name = strings.ToUpper(company.Name)
+	if !model.Prepare(company) {
+		return &Company{}, errors.New("Company is not valid.")
+	}
+	db := utils.Connect()
+	err := db.Conn.Create(company).Error
+	if err != nil{
+		log.Fatalf("Error to persis Company: %v", err)
+	}
+	return company, err
 }

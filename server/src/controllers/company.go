@@ -4,6 +4,9 @@ import(
 	"server/src/models"
 	"server/src/utils"
 	"net/http"
+	"os"
+	"log"
+	"encoding/csv"
 )
 
 type CompanyController struct{
@@ -21,4 +24,28 @@ func (controller *CompanyController) GetAll(w http.ResponseWriter, r *http.Reque
 	}
 	utils.JSONResponse(w, result, http.StatusOK)
 	return
+}
+
+func (controller *CompanyController) LoadCSV(filename string) bool{
+		file, err := os.Open(filename)
+		if err != nil {
+			log.Fatalf("Couldn't open the csv file: %v", err)
+			return false
+		}
+		reader := csv.NewReader(file)
+		reader.Comma = ';'
+
+		lines, err := reader.ReadAll()
+
+		if err != nil{
+			log.Fatalf("Couldn't read csv file: %v", err)
+			return false
+		}
+		for i, line := range lines{
+			if i != 0{
+				company := models.Company{Name: line[0], ZipCode: line[1], Website: ""}
+				controller.companyModel.Insert(&company)
+			}
+		}
+		return true
 }
