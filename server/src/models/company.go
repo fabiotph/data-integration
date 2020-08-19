@@ -88,7 +88,7 @@ func (model *CompanyModel) Insert (company *Company) (*Company, error) {
 	db := utils.Connect()
 	err := db.Conn.Create(company).Error
 	if err != nil{
-		log.Fatalf("Error to persis Company: %v", err)
+		log.Fatalf("Error to persist Company: %v", err)
 	}
 	return company, err
 }
@@ -111,8 +111,8 @@ func (model *CompanyModel) UpdateWebsite(company *Company) (Company, error){
 	response := Company{}
 	count := db.Conn.Model(Company{}).Where("name = ? AND zip_code = ?", company.Name, company.ZipCode).Update("website", company.Website).RowsAffected
 	if count == 0{
-		log.Println("Company is not updated.")
-		return Company{}, errors.New("Company is not updated.")
+		log.Println("Company was not updated.")
+		return Company{}, errors.New("Company was not updated.")
 	}
 	defer db.Close()
 	return response, nil
