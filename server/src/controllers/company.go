@@ -60,7 +60,6 @@ func (controller *CompanyController) GetByNameAndZipCode(w http.ResponseWriter, 
 	}
 
 	search := models.Company{}
-	search.Name = strings.ToUpper(name)
 	search.ZipCode = zip
 
 	result, err := controller.companyModel.GetByNameAndZipCode(&search)
@@ -100,7 +99,6 @@ func (controller *CompanyController) UpdateByCSV(w http.ResponseWriter, r *http.
 	for i, line := range lines{
 		if i != 0{
 			updateCompany := models.Company{Name: line[0], ZipCode: line[1], Website: line[2]}
-			updateCompany.Name = strings.ToUpper(updateCompany.Name)
 			controller.companyModel.UpdateWebsite(&updateCompany)
 		}
 	}

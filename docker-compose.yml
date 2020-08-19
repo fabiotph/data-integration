@@ -6,8 +6,6 @@ services:
     container_name: db
     restart: always
     tty: true
-    volumes:
-      - .db:/var/lib/postgresql/data
     environment: 
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=data-integration
@@ -23,14 +21,12 @@ services:
     build: ./server
     container_name: api
     restart: on-failure
-    volumes:
-      - .api:/server/data
     ports:
       - 3000:3000
     links:
       - db
     environment:
-      - DSN=host=host.docker.internal dbname=data-integration sslmode=disable user=postgres password=root
+      - DSN=host=host.docker.internal port=5432 dbname=data-integration sslmode=disable user=postgres password=root
     depends_on:
       db:
         condition: service_healthy

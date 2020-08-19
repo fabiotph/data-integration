@@ -46,6 +46,7 @@ func (model *CompanyModel) Prepare(company *Company) bool{
 }
 
 func (model *Company) validate() bool{
+	model.Name = strings.ToUpper(model.Name)
 	if(!validateName(model.Name) || !validateZipCode(model.ZipCode)) || !validateWebSite(model.Website){
 		return false
 	}
@@ -93,6 +94,7 @@ func (model *CompanyModel) Insert (company *Company) (*Company, error) {
 }
 
 func (model *CompanyModel) GetByNameAndZipCode(company *Company) (Company, error){
+	company.Name = strings.ToUpper(company.Name)
 	db := utils.Connect()
 	response := Company{}
 	err := db.Conn.Where("name LIKE ? AND zip_code = ?", "%"+company.Name+"%", company.ZipCode).Take(&response).Error
@@ -103,13 +105,15 @@ func (model *CompanyModel) GetByNameAndZipCode(company *Company) (Company, error
 	return response, err
 }
 
-func (model *CompanyModel) UpdateWebsite(company *Company) Company{
+func (model *CompanyModel) UpdateWebsite(company *Company) (Company, error){
+	company.Name = strings.ToUpper(company.Name)
 	db := utils.Connect()
 	response := Company{}
-	err := db.Conn.Model(Company{}).Where("name = ? AND zip_code = ?", company.Name, company.ZipCode).Update("website", company.Website).Error
-	if err != nil{
-		log.Fatalf("Error update Company")
+	count := db.Conn.Model(Company{}).Where("name = ? AND zip_code = ?", company.Name, company.ZipCode).Update("website", company.Website).RowsAffected
+	if count == 0{
+		log.Println("Company is not updated.")
+		return Company{}, errors.New("Company is not updated.")
 	}
 	defer db.Close()
-	return response
+	return response, nil
 }
